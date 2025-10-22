@@ -1,0 +1,439 @@
+-- DUMPED BY @Greaky @Greaky @Greaky @Greaky @Greaky @Greaky @Greaky
+
+
+-- Ensure this script is in StarterPlayerScripts as a LocalScript
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game:GetService("CoreGui")
+
+-- Ensure this script is in StarterPlayerScripts as a LocalScript
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+if playerGui:FindFirstChild("IntroLoadingGui") then
+	playerGui.IntroLoadingGui:Destroy()
+end
+
+local LoadingGui = Instance.new("ScreenGui")
+LoadingGui.Name = "IntroLoadingGui"
+LoadingGui.Parent = playerGui
+LoadingGui.DisplayOrder = 999
+LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+LoadingGui.ResetOnSpawn = false
+
+local Panel = Instance.new("Frame")
+Panel.Size = UDim2.new(0, 360, 0, 120)
+Panel.Position = UDim2.new(0.5, 0, 0.5, 0)
+Panel.AnchorPoint = Vector2.new(0.5, 0.5)
+Panel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Panel.BorderSizePixel = 0
+Panel.Parent = LoadingGui
+Instance.new("UICorner", Panel).CornerRadius = UDim.new(0, 16)
+
+-- Logo (with space below it)
+local Logo = Instance.new("ImageLabel")
+Logo.Size = UDim2.new(0, 50, 0, 50)
+Logo.Position = UDim2.new(0, 10, 0, 10) -- Top with space below
+Logo.BackgroundTransparency = 1
+Logo.Image = "rbxassetid://111418164316621"
+Logo.Parent = Panel
+Instance.new("UICorner", Logo).CornerRadius = UDim.new(1, 0)
+
+-- Channel name (next to logo)
+local NameLabel = Instance.new("TextLabel")
+NameLabel.Text = "Youtube: Shino Scripts"
+NameLabel.Font = Enum.Font.SourceSansBold
+NameLabel.TextSize = 20
+NameLabel.TextColor3 = Color3.new(1, 1, 1)
+NameLabel.BackgroundTransparency = 1
+NameLabel.Position = UDim2.new(0, 70, 0, 14)
+NameLabel.Size = UDim2.new(1, -80, 0, 22)
+NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+NameLabel.Parent = Panel
+
+-- Bypassing label (spaced under logo)
+local BypassLabel = Instance.new("TextLabel")
+BypassLabel.Text = "Bypassing Anti Cheat, Please Wait"
+BypassLabel.Font = Enum.Font.SourceSansItalic
+BypassLabel.TextSize = 18
+BypassLabel.TextColor3 = Color3.new(1, 1, 1)
+BypassLabel.BackgroundTransparency = 1
+BypassLabel.Position = UDim2.new(0, 70, 0, 36)
+BypassLabel.Size = UDim2.new(1, -80, 0, 20)
+BypassLabel.TextXAlignment = Enum.TextXAlignment.Left
+BypassLabel.Parent = Panel
+
+-- Animated dots on bypass label
+task.spawn(function()
+	local baseText = "Bypassing Anti Cheat, Please Wait"
+	while BypassLabel and BypassLabel.Parent do
+		for i = 0, 3 do
+			BypassLabel.Text = baseText .. string.rep(".", i)
+			task.wait(0.4)
+		end
+	end
+end)
+
+-- Loading bar background
+local BarBackground = Instance.new("Frame")
+BarBackground.Size = UDim2.new(0.9, 0, 0, 18)
+BarBackground.Position = UDim2.new(0.05, 0, 0, 62)
+BarBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+BarBackground.BorderSizePixel = 0
+BarBackground.Parent = Panel
+Instance.new("UICorner", BarBackground).CornerRadius = UDim.new(1, 0)
+
+-- Loading bar fill
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(0, 128, 0)
+LoadingBar.BorderSizePixel = 0
+LoadingBar.Parent = BarBackground
+Instance.new("UICorner", LoadingBar).CornerRadius = UDim.new(1, 0)
+
+-- Subscribe text (no space under it)
+local SubscribeText = Instance.new("TextLabel")
+SubscribeText.Text = "Subscribe To Shino Scripts"
+SubscribeText.Font = Enum.Font.SourceSans
+SubscribeText.TextSize = 18
+SubscribeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubscribeText.BackgroundTransparency = 1
+SubscribeText.Position = UDim2.new(0.05, 0, 0, 90)
+SubscribeText.Size = UDim2.new(0.5, -10, 0, 20)
+SubscribeText.TextXAlignment = Enum.TextXAlignment.Left
+SubscribeText.Parent = Panel
+
+-- Copy button next to it (no space below)
+local CopyButton = Instance.new("TextButton")
+CopyButton.Size = UDim2.new(0.4, 0, 0, 20)
+CopyButton.Position = UDim2.new(0.55, 0, 0, 90)
+CopyButton.Text = "Copy Channel Link"
+CopyButton.Font = Enum.Font.SourceSansSemibold
+CopyButton.TextSize = 16
+CopyButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+CopyButton.TextColor3 = Color3.new(1, 1, 1)
+CopyButton.Parent = Panel
+Instance.new("UICorner", CopyButton).CornerRadius = UDim.new(0, 8)
+
+CopyButton.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard("https://www.youtube.com/@ShinoScriptsz")
+		CopyButton.Text = "Copied!"
+		task.wait(1)
+		CopyButton.Text = "Copy Channel Link"
+	end
+end)
+
+-- Loading animation
+local steps = 100
+local delayTime = 3 / steps
+for i = 1, steps do
+	LoadingBar.Size = UDim2.new(i / steps, 0, 1, 0)
+	task.wait(delayTime)
+end
+
+-- Fade out everything
+for i = 1, 10 do
+	local t = i / 10
+	Panel.BackgroundTransparency = t
+	Logo.ImageTransparency = t
+	NameLabel.TextTransparency = t
+	BypassLabel.TextTransparency = t
+	LoadingBar.BackgroundTransparency = t
+	BarBackground.BackgroundTransparency = t
+	SubscribeText.TextTransparency = t
+	CopyButton.BackgroundTransparency = t
+	CopyButton.TextTransparency = t
+	task.wait(0.04)
+end
+
+LoadingGui:Destroy()
+
+
+local notificationFrame = Instance.new("Frame")
+notificationFrame.Size = UDim2.new(0.4, 0, 0.08, 0)
+notificationFrame.Position = UDim2.new(0.3, 0, 0.9, 0)
+notificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+notificationFrame.BackgroundTransparency = 0.3
+notificationFrame.BorderSizePixel = 0
+notificationFrame.Parent = screenGui
+notificationFrame.Visible = false
+
+local notificationUICorner = Instance.new("UICorner")
+notificationUICorner.CornerRadius = UDim.new(0.1, 0)
+notificationUICorner.Parent = notificationFrame
+
+local notificationGradient = Instance.new("UIGradient")
+notificationGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(25, 25, 25))
+}
+notificationGradient.Parent = notificationFrame
+
+local notificationText = Instance.new("TextLabel")
+notificationText.Size = UDim2.new(1, 0, 1, 0)
+notificationText.Position = UDim2.new(0, 0, 0, 0)
+notificationText.BackgroundTransparency = 1
+notificationText.TextColor3 = Color3.fromRGB(255, 255, 255)
+notificationText.TextSize = 20
+notificationText.Font = Enum.Font.GothamBold
+notificationText.TextScaled = true
+notificationText.Parent = notificationFrame
+
+local function showNotification(message)
+    notificationText.Text = message
+    notificationFrame.Visible = true
+    notificationFrame:TweenPosition(UDim2.new(0.3, 0, 0.85, 0), "Out", "Quad", 0.5, true)
+    wait(3)
+    notificationFrame:TweenPosition(UDim2.new(0.3, 0, 1.1, 0), "Out", "Quad", 0.5, true)
+    wait(0.5)
+    notificationFrame.Visible = false
+end
+
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CustomPanelGui"
+ScreenGui.Parent = screenGui
+ScreenGui.DisplayOrder = 999
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Panel inside the screenGui with a proper red outline using UIStroke
+local PanelFrame = Instance.new("Frame")
+PanelFrame.Name = "PanelFrame"
+PanelFrame.Parent = ScreenGui
+PanelFrame.Position = UDim2.new(0.5, -175, 0.5, -115)
+PanelFrame.Size = UDim2.new(0, 350, 0, 230)
+PanelFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+PanelFrame.BorderSizePixel = 0
+PanelFrame.Active = true
+PanelFrame.Draggable = true
+
+-- Rounded corners
+local PanelFrameCorner = Instance.new("UICorner")
+PanelFrameCorner.CornerRadius = UDim.new(0, 16)
+PanelFrameCorner.Parent = PanelFrame
+
+-- Red outline using UIStroke
+local PanelStroke = Instance.new("UIStroke")
+PanelStroke.Thickness = 3
+PanelStroke.Color = Color3.fromRGB(210, 42, 42)
+PanelStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+PanelStroke.Parent = PanelFrame
+
+-- Create title
+local Title = Instance.new("TextLabel")
+Title.Parent = PanelFrame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundTransparency = 1
+Title.Text = "Weapon Spawner"
+Title.Font = Enum.Font.SourceSansBold
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+
+-- Create input box
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = PanelFrame
+TextBox.Size = UDim2.new(0.9, 0, 0, 40)
+TextBox.Position = UDim2.new(0.05, 0, 0.25, 0)
+TextBox.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+TextBox.BorderColor3 = Color3.fromRGB(55, 55, 55)
+TextBox.PlaceholderText = "Enter Item Name..."
+TextBox.Text = ""
+TextBox.Font = Enum.Font.SourceSans
+TextBox.TextScaled = true
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Add rounded corners to the TextBox
+local TextBoxCorner = Instance.new("UICorner")
+TextBoxCorner.CornerRadius = UDim.new(0, 12)
+TextBoxCorner.Parent = TextBox
+
+-- Create "Unbox Item" button
+local UnboxButton = Instance.new("TextButton")
+UnboxButton.Parent = PanelFrame
+UnboxButton.Size = UDim2.new(0.9, 0, 0, 40)
+UnboxButton.Position = UDim2.new(0.05, 0, 0.5, 0)
+UnboxButton.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+UnboxButton.BorderSizePixel = 4
+UnboxButton.BorderColor3 = Color3.fromRGB(55, 55, 55)
+UnboxButton.Text = "Spawn Item"
+UnboxButton.Font = Enum.Font.SourceSansBold
+UnboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+UnboxButton.TextScaled = true
+
+-- Add rounded corners to the Unbox button
+local UnboxButtonCorner = Instance.new("UICorner")
+UnboxButtonCorner.CornerRadius = UDim.new(0, 12)
+UnboxButtonCorner.Parent = UnboxButton
+
+-- Create "Save to Database" button
+local SaveButton = Instance.new("TextButton")
+SaveButton.Parent = PanelFrame
+SaveButton.Size = UDim2.new(0.9, 0, 0, 40)
+SaveButton.Position = UDim2.new(0.05, 0, 0.7, 0)
+SaveButton.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+SaveButton.BorderSizePixel = 4
+SaveButton.BorderColor3 = Color3.fromRGB(55, 55, 55)
+SaveButton.Text = "Save to Database"
+SaveButton.Font = Enum.Font.SourceSansBold
+SaveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+SaveButton.TextScaled = true
+
+-- Add rounded corners to the Save to Database button
+local SaveButtonCorner = Instance.new("UICorner")
+SaveButtonCorner.CornerRadius = UDim.new(0, 12)
+SaveButtonCorner.Parent = SaveButton
+
+-- Credits Label
+local CreditsLabel = Instance.new("TextLabel")
+CreditsLabel.Parent = PanelFrame
+CreditsLabel.Size = UDim2.new(1, 0, 0, 20)
+CreditsLabel.Position = UDim2.new(0, 0, 0.90, 0)
+CreditsLabel.BackgroundTransparency = 1
+CreditsLabel.Text = "By Shino Scripts"
+CreditsLabel.Font = Enum.Font.SourceSansItalic
+CreditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+CreditsLabel.TextScaled = true
+
+local crate = "Christmas2024Box"
+local _R = game:GetService("ReplicatedStorage")
+local _B = _R:WaitForChild("Remotes"):WaitForChild("Shop"):WaitForChild("BoxController")
+
+local RunService = game:GetService("RunService")
+
+local function fireBoxController(crate, item)
+    _B:Fire(crate, item)
+end
+
+local function spawnWeapon(name)
+    local DataBase = require(game:GetService("ReplicatedStorage").Database.Sync.Item)
+    local PlayerData = require(game:GetService("ReplicatedStorage").Modules.ProfileData)
+
+    local PlayerWeapons = PlayerData.Weapons
+
+    RunService:BindToRenderStep("InventoryUpdate", 0, function()
+        -- Safely update the Owned table without replacing it
+        if not PlayerWeapons.Owned[name] then
+            PlayerWeapons.Owned[name] = 1
+        else
+            PlayerWeapons.Owned[name] += 1
+        end
+
+        -- Optional: unbind after update to avoid re-running
+        RunService:UnbindFromRenderStep("InventoryUpdate")
+    end)
+end
+
+-- Example usage:
+-- fireBoxController(crate, "CandyBlade")
+-- spawnWeapon("CandyBlade")
+
+
+UnboxButton.MouseButton1Click:Connect(function()
+    local itemName = TextBox.Text
+    if itemName ~= "" then
+        fireBoxController(crate, itemName)
+        showNotification("Rolling box for: " .. itemName)
+        task.delay(3, function()
+            spawnWeapon(itemName)
+            game.Players.LocalPlayer.Character:BreakJoints()
+        end)
+    else
+        showNotification("Please enter an item name.")
+    end
+end)
+
+-- Load External Modules
+local boxmodule = require(game:GetService("ReplicatedStorage").Modules.BoxModule)
+local poop = getsenv(game:GetService("Players").LocalPlayer.PlayerGui.MainGUI.Inventory.NewItem)._G
+local itemdatabase = require(game:GetService("ReplicatedStorage").Database.Sync.Item)
+
+-- Get Random Mystery Box
+local function getrandombox()
+    local boxes = require(game:GetService("ReplicatedStorage").Database.Sync.MysteryBox)
+    if not boxes or next(boxes) == nil then return nil end
+    local keys = {}
+    for k, _ in pairs(boxes) do
+        table.insert(keys, k)
+    end
+    return keys[math.random(1, #keys)]
+end
+
+-- Open Crate with Selected Item
+local function opencrate(ITEM_NAME)
+    if ITEM_NAME and itemdatabase[ITEM_NAME] then
+        print("Spawning:", ITEM_NAME)
+        boxmodule.OpenBox(getrandombox(), ITEM_NAME)
+        poop.NewItem(ITEM_NAME, nil, nil, "Weapons", 1)
+    else
+        warn("Invalid item selection!")
+    end
+end
+
+UnboxButton.MouseButton1Click:Connect(function()
+    local itemName = TextBox.Text
+    if itemName == "" then return end
+    opencrate(itemName)
+end)
+
+local function showPopup(action, itemName, duration)
+    local PopupFrame = Instance.new("Frame")
+    PopupFrame.Parent = ScreenGui
+    PopupFrame.Size = UDim2.new(0, 300, 0, 150)
+    PopupFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    PopupFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    PopupFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+
+    -- Add rounded corners to the popup
+    local PopupFrameCorner = Instance.new("UICorner")
+    PopupFrameCorner.CornerRadius = UDim.new(0, 16)
+    PopupFrameCorner.Parent = PopupFrame
+
+-- Red outline using UIStroke
+local PopupStroke = Instance.new("UIStroke")
+PopupStroke.Thickness = 3
+PopupStroke.Color = Color3.fromRGB(210, 42, 42)
+PopupStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+PopupStroke.Parent = PopupFrame
+
+    local PopupText = Instance.new("TextLabel")
+    PopupText.Parent = PopupFrame
+    PopupText.Size = UDim2.new(1, -20, 0.5, 0)
+    PopupText.Position = UDim2.new(0, 10, 0, 10)
+    PopupText.BackgroundTransparency = 1
+    PopupText.Text = action .. " \"" .. itemName .. "\"..."
+    PopupText.Font = Enum.Font.SourceSansBold
+    PopupText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    PopupText.TextScaled = true
+
+    local LoadingBarBackground = Instance.new("Frame")
+    LoadingBarBackground.Parent = PopupFrame
+    LoadingBarBackground.Size = UDim2.new(0.8, 0, 0.1, 0)
+    LoadingBarBackground.Position = UDim2.new(0.1, 0, 0.7, 0)
+    LoadingBarBackground.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+
+    local LoadingBar = Instance.new("Frame")
+    LoadingBar.Parent = LoadingBarBackground
+    LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+    LoadingBar.BackgroundColor3 = Color3.fromRGB(49, 203, 74)
+
+    local steps = 100
+    local delayTime = 3 / steps
+    for i = 1, steps do
+        LoadingBar.Size = UDim2.new(i / steps, 0, 1, 0)
+        wait(delayTime)
+    end
+
+    local success = action == "Spawning" and spawnPet(itemName)
+    PopupText.Text = success and (action == "Spawning" and "Weapon Spawned Successfully!" or "Saved Successfully!") or "Successfully " .. action .. "!"
+
+    wait(1.5)
+    PopupFrame:Destroy()
+end
+
+
+SaveButton.MouseButton1Click:Connect(function()
+    local itemName = TextBox.Text
+    if itemName == "" then return end
+    showPopup("Saving", itemName, 300)
+end)
