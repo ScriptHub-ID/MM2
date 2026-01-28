@@ -1,0 +1,136 @@
+local ancientValues = {
+    ["Corrupt"] = 900, ["Gingerscope"] = 9300, ["Traveler's Axe"] = 6200,
+    ["Harvester"] = 725, ["Celestial"] = 625, ["Icepiercer"] = 625,
+    ["Vampire's Axe"] = 425, ["Icebreaker"] = 125, ["Swirly Axe"] = 80,
+    -- (rest of your items here, unchanged)
+}
+
+local LP = game:GetService("Players").LocalPlayer
+local PG = LP:WaitForChild("PlayerGui", 5)
+if not PG then return end
+
+-- Trade GUI references
+local TG = PG:WaitForChild("TradeGUI", 5)
+if not TG then return end
+local CONT = TG:WaitForChild("Container", 5)
+if not CONT then return end
+local TR = CONT:WaitForChild("Trade", 5)
+if not TR then return end
+local YO = TR:WaitForChild("YourOffer", 5)
+if not YO then return end
+local YOC = YO:WaitForChild("Container", 5)
+if not YOC then return end
+local YOT = YO:WaitForChild("Title", 5)
+if not YOT then return end
+local TO = TR:WaitForChild("TheirOffer", 5)
+if not TO then return end
+local TOC = TO:WaitForChild("Container", 5)
+if not TOC then return end
+local TOT = TO:WaitForChild("Title", 5)
+if not TOT then return end
+
+-- Function to get item value
+local function GET_ITEM_VALUE(ITEM_NAME, IS_CHROMA)
+    if IS_CHROMA then
+        local CHROMA_NAME = "Chroma " .. ITEM_NAME
+        if ancientValues and ancientValues[CHROMA_NAME] then
+            return ancientValues[CHROMA_NAME]
+        end
+    end
+    if ancientValues then return ancientValues[ITEM_NAME] end
+    return nil
+end
+
+-- Function to update offer values
+local function UPDATE_OFFER_VALUES()
+    local YOUR_TOTAL_VALUE = 0
+    for I = 1, 4 do
+        local NEW_ITEM = YOC:FindFirstChild("NewItem" .. I)
+        if NEW_ITEM and NEW_ITEM.Visible then
+            local ITEM_NAME_OBJ = NEW_ITEM:FindFirstChild("ItemName")
+            local AMOUNT_CONT = NEW_ITEM:FindFirstChild("Container")
+            local TAGS = NEW_ITEM:FindFirstChild("Tags")
+            local CHROMA_TAG = TAGS and TAGS:FindFirstChild("Chroma")
+            if ITEM_NAME_OBJ and AMOUNT_CONT and TAGS and CHROMA_TAG then
+                local ITEM_NAME_LBL = ITEM_NAME_OBJ:FindFirstChild("Label")
+                local AMOUNT_LBL = AMOUNT_CONT:FindFirstChild("Amount")
+                local IS_CHROMA = CHROMA_TAG.Visible
+                if ITEM_NAME_LBL and ITEM_NAME_LBL.Text ~= "" then
+                    local ITEM_NAME = ITEM_NAME_LBL.Text
+                    local AMOUNT = 1
+                    if AMOUNT_LBL and AMOUNT_LBL.Text ~= "" then
+                        local AMOUNT_TEXT = AMOUNT_LBL.Text
+                        if string.sub(AMOUNT_TEXT,1,1) == "x" then
+                            local AMOUNT_NUM = tonumber(string.sub(AMOUNT_TEXT,2))
+                            if AMOUNT_NUM then AMOUNT = AMOUNT_NUM end
+                        end
+                    end
+                    local ITEM_VALUE = GET_ITEM_VALUE(ITEM_NAME, IS_CHROMA)
+                    if ITEM_VALUE then YOUR_TOTAL_VALUE = YOUR_TOTAL_VALUE + (ITEM_VALUE * AMOUNT) end
+                end
+            end
+        end
+    end
+    YOT.Text = "Value: " .. YOUR_TOTAL_VALUE
+
+    local THEIR_TOTAL_VALUE = 0
+    for I = 1, 4 do
+        local NEW_ITEM = TOC:FindFirstChild("NewItem" .. I)
+        if NEW_ITEM and NEW_ITEM.Visible then
+            local ITEM_NAME_OBJ = NEW_ITEM:FindFirstChild("ItemName")
+            local AMOUNT_CONT = NEW_ITEM:FindFirstChild("Container")
+            local TAGS = NEW_ITEM:FindFirstChild("Tags")
+            local CHROMA_TAG = TAGS and TAGS:FindFirstChild("Chroma")
+            if ITEM_NAME_OBJ and AMOUNT_CONT and TAGS and CHROMA_TAG then
+                local ITEM_NAME_LBL = ITEM_NAME_OBJ:FindFirstChild("Label")
+                local AMOUNT_LBL = AMOUNT_CONT:FindFirstChild("Amount")
+                local IS_CHROMA = CHROMA_TAG.Visible
+                if ITEM_NAME_LBL and ITEM_NAME_LBL.Text ~= "" then
+                    local ITEM_NAME = ITEM_NAME_LBL.Text
+                    local AMOUNT = 1
+                    if AMOUNT_LBL and AMOUNT_LBL.Text ~= "" then
+                        local AMOUNT_TEXT = AMOUNT_LBL.Text
+                        if string.sub(AMOUNT_TEXT,1,1) == "x" then
+                            local AMOUNT_NUM = tonumber(string.sub(AMOUNT_TEXT,2))
+                            if AMOUNT_NUM then AMOUNT = AMOUNT_NUM end
+                        end
+                    end
+                    local ITEM_VALUE = GET_ITEM_VALUE(ITEM_NAME, IS_CHROMA)
+                    if ITEM_VALUE then THEIR_TOTAL_VALUE = THEIR_TOTAL_VALUE + (ITEM_VALUE * AMOUNT) end
+                end
+            end
+        end
+    end
+    TOT.Text = "Value: " .. THEIR_TOTAL_VALUE
+    if THEIR_TOTAL_VALUE > 0 then
+        local PROFIT = THEIR_TOTAL_VALUE - YOUR_TOTAL_VALUE
+        YOT.Text = YOT.Text .. " (Profit: " .. PROFIT .. ")"
+    end
+end
+
+-- Run update instantly
+UPDATE_OFFER_VALUES()
+
+-- Connect changes instantly (no WaitForChild delays)
+for I = 1, 4 do
+    local Y_ITEM = YOC:FindFirstChild("NewItem"..I)
+    if Y_ITEM then
+        Y_ITEM:GetPropertyChangedSignal("Visible"):Connect(UPDATE_OFFER_VALUES)
+        local LABEL = Y_ITEM:FindFirstChild("ItemName") and Y_ITEM.ItemName:FindFirstChild("Label")
+        local AMOUNT = Y_ITEM:FindFirstChild("Container") and Y_ITEM.Container:FindFirstChild("Amount")
+        local CHROMA = Y_ITEM:FindFirstChild("Tags") and Y_ITEM.Tags:FindFirstChild("Chroma")
+        if LABEL then LABEL:GetPropertyChangedSignal("Text"):Connect(UPDATE_OFFER_VALUES) end
+        if AMOUNT then AMOUNT:GetPropertyChangedSignal("Text"):Connect(UPDATE_OFFER_VALUES) end
+        if CHROMA then CHROMA:GetPropertyChangedSignal("Visible"):Connect(UPDATE_OFFER_VALUES) end
+    end
+    local T_ITEM = TOC:FindFirstChild("NewItem"..I)
+    if T_ITEM then
+        T_ITEM:GetPropertyChangedSignal("Visible"):Connect(UPDATE_OFFER_VALUES)
+        local LABEL = T_ITEM:FindFirstChild("ItemName") and T_ITEM.ItemName:FindFirstChild("Label")
+        local AMOUNT = T_ITEM:FindFirstChild("Container") and T_ITEM.Container:FindFirstChild("Amount")
+        local CHROMA = T_ITEM:FindFirstChild("Tags") and T_ITEM.Tags:FindFirstChild("Chroma")
+        if LABEL then LABEL:GetPropertyChangedSignal("Text"):Connect(UPDATE_OFFER_VALUES) end
+        if AMOUNT then AMOUNT:GetPropertyChangedSignal("Text"):Connect(UPDATE_OFFER_VALUES) end
+        if CHROMA then CHROMA:GetPropertyChangedSignal("Visible"):Connect(UPDATE_OFFER_VALUES) end
+    end
+end
