@@ -1,0 +1,144 @@
+--// Services
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local PlayerGui = LP:WaitForChild("PlayerGui")
+
+--// Fake Item Database (Use your ancientValues)
+local ancientValues = {
+    ["Corrupt"] = 900,
+    ["Gingerscope"] = 9300,
+    ["Traveler's Axe"] = 6200,
+    ["Chroma Traveler's Gun"] = 140000,
+    ["Rainbow Gun"] = 225,
+    ["Bat"] = 275,
+    ["Fire Bunny"] = 1,
+    ["Chroma Fire Bunny"] = 20
+}
+
+--// Utility Function: Create UI Elements
+local function createUI(class, parent, props)
+    local obj = Instance.new(class)
+    obj.Parent = parent
+    if props then
+        for k,v in pairs(props) do
+            obj[k] = v
+        end
+    end
+    return obj
+end
+
+--// Main Toggle Menu
+local menu = createUI("ScreenGui", PlayerGui, {Name="VisualSpawnerMenu", ResetOnSpawn=false})
+local frame = createUI("Frame", menu, {
+    Size=UDim2.new(0,250,0,300),
+    Position=UDim2.new(0.05,0,0.2,0),
+    BackgroundColor3=Color3.fromRGB(35,35,35),
+    BorderSizePixel=0
+})
+frame.Draggable = true
+frame.Active = true
+
+-- Title
+createUI("TextLabel", frame, {
+    Text="Visual Spawner Menu",
+    Size=UDim2.new(1,0,0,30),
+    BackgroundColor3=Color3.fromRGB(45,45,45),
+    TextColor3=Color3.new(1,1,1),
+    Font=Enum.Font.SourceSansBold,
+    TextScaled=true
+})
+
+-- Buttons
+local function createButton(name, posY, callback)
+    local btn = createUI("TextButton", frame, {
+        Text=name,
+        Size=UDim2.new(0.9,0,0,30),
+        Position=UDim2.new(0.05,0,0,posY),
+        BackgroundColor3=Color3.fromRGB(70,70,70),
+        TextColor3=Color3.new(1,1,1),
+        Font=Enum.Font.SourceSans,
+        TextScaled=true
+    })
+    btn.MouseButton1Click:Connect(callback)
+end
+
+-- Containers for visual spawns
+local FakeInventory = {}
+local FakeTrade = {Your={},Their={}}
+local FakeBackpack = {}
+
+--// SPAWN FUNCTIONS
+local function spawnInventory(itemName, amount, isChroma)
+    local itemFrame = createUI("Frame", frame, {
+        Size=UDim2.new(0.9,0,0,25),
+        BackgroundColor3=Color3.fromRGB(60,60,60),
+        BorderSizePixel=0
+    })
+    createUI("TextLabel", itemFrame, {
+        Text=(isChroma and "Chroma " or "")..itemName.." x"..amount,
+        Size=UDim2.new(1,0,1,0),
+        BackgroundTransparency=1,
+        TextColor3=Color3.new(1,1,1),
+        TextScaled=true
+    })
+    table.insert(FakeInventory, itemFrame)
+end
+
+local function spawnTrade(side, itemName, amount, isChroma)
+    local tradeParent = frame
+    local labelText = (side=="Your" and "[Your Offer] " or "[Their Offer] ")..(isChroma and "Chroma " or "")..itemName.." x"..amount
+    local itemFrame = createUI("TextLabel", tradeParent, {
+        Text=labelText,
+        Size=UDim2.new(0.9,0,0,25),
+        BackgroundColor3=Color3.fromRGB(80,80,80),
+        TextColor3=Color3.new(1,1,1),
+        TextScaled=true
+    })
+    table.insert(FakeTrade[side], itemFrame)
+end
+
+local function spawnBackpack(itemName, amount, isChroma)
+    local itemFrame = createUI("TextLabel", frame, {
+        Text=(isChroma and "Chroma " or "")..itemName.." x"..amount,
+        Size=UDim2.new(0.9,0,0,25),
+        BackgroundColor3=Color3.fromRGB(50,50,50),
+        TextColor3=Color3.new(1,1,1),
+        TextScaled=true
+    })
+    table.insert(FakeBackpack, itemFrame)
+end
+
+--// WIPE FUNCTIONS
+local function wipeAll()
+    for _,v in pairs(FakeInventory) do v:Destroy() end
+    for _,v in pairs(FakeTrade.Your) do v:Destroy() end
+    for _,v in pairs(FakeTrade.Their) do v:Destroy() end
+    for _,v in pairs(FakeBackpack) do v:Destroy() end
+    FakeInventory, FakeTrade.Your, FakeTrade.Their, FakeBackpack = {}, {}, {}, {}
+end
+
+--// BUTTON CALLBACKS
+createButton("Spawn Inventory",40,function()
+    spawnInventory("Corrupt",3,false)
+    spawnInventory("Chroma Traveler's Gun",1,true)
+end)
+
+createButton("Spawn Trade Window",80,function()
+    spawnTrade("Your","Rainbow Gun",2,false)
+    spawnTrade("Their","Bat",5,false)
+    spawnTrade("Your","Chroma Fire Bunny",1,true)
+end)
+
+createButton("Spawn Backpack Preview",120,function()
+    spawnBackpack("Traveler's Axe",2,false)
+    spawnBackpack("Chroma Traveler's Gun",1,true)
+end)
+
+createButton("Wipe All Visuals",160,function()
+    wipeAll()
+end)
+
+--// Optional Toggle Menu Button
+createButton("Toggle Menu",200,function()
+    frame.Visible = not frame.Visible
+end)
