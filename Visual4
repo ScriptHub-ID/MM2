@@ -1,0 +1,159 @@
+--==================================================
+-- MM2 VISUAL ITEM SPAWNER (INVENTORY + TRADE + HOTBAR)
+--==================================================
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+--==================================================
+-- HELPERS (SAFE)
+--==================================================
+
+local function deepFind(parent, name)
+    for _, v in ipairs(parent:GetDescendants()) do
+        if v.Name == name then
+            return v
+        end
+    end
+end
+
+local function clearFrames(container)
+    for _, v in ipairs(container:GetChildren()) do
+        if v:IsA("Frame") then
+            v:Destroy()
+        end
+    end
+end
+
+--==================================================
+-- GUI REFERENCES (MATCHES MOST MM2 SCRIPTS)
+--==================================================
+
+local MainGUI = PG:WaitForChild("MainGUI", 10)
+if not MainGUI then return warn("MainGUI not found") end
+
+local Inventory = deepFind(MainGUI, "Inventory")
+local TradeGUI = PG:FindFirstChild("TradeGUI")
+local Hotbar = deepFind(MainGUI, "Hotbar")
+
+-- INVENTORY
+local ItemsFrame = Inventory and deepFind(Inventory, "Items")
+local ItemTemplate = ItemsFrame and ItemsFrame:FindFirstChildWhichIsA("Frame")
+
+--==================================================
+-- 1️⃣ INVENTORY VISUAL SPAWNER
+--==================================================
+
+local function spawnInventoryItem(data)
+    if not ItemTemplate or not ItemsFrame then return end
+
+    local clone = ItemTemplate:Clone()
+    clone.Visible = true
+
+    local nameLabel = deepFind(clone, "ItemName")
+    if nameLabel then nameLabel.Text = data.name end
+
+    local rarityLabel = deepFind(clone, "Rarity")
+    if rarityLabel then rarityLabel.Text = data.rarity end
+
+    local chroma = deepFind(clone, "Chroma")
+    if chroma then chroma.Visible = data.chroma end
+
+    local amount = deepFind(clone, "Amount")
+    if amount and data.amount then
+        amount.Text = "x" .. data.amount
+        amount.Visible = true
+    end
+
+    clone.Parent = ItemsFrame
+end
+
+--==================================================
+-- 2️⃣ TRADE WINDOW VISUAL SPAWNER
+--==================================================
+
+local function spawnTradeItem(side, data)
+    if not TradeGUI then return end
+
+    local offer = deepFind(TradeGUI, side == "You" and "YourOffer" or "TheirOffer")
+    if not offer then return end
+
+    local slot = offer:FindFirstChildWhichIsA("Frame", true)
+    if not slot then return end
+
+    slot.Visible = true
+
+    local nameLabel = deepFind(slot, "ItemName")
+    if nameLabel then nameLabel.Text = data.name end
+
+    local chroma = deepFind(slot, "Chroma")
+    if chroma then chroma.Visible = data.chroma end
+
+    local amount = deepFind(slot, "Amount")
+    if amount and data.amount then
+        amount.Text = "x" .. data.amount
+        amount.Visible = true
+    end
+end
+
+--==================================================
+-- 3️⃣ HOTBAR / BACKPACK PREVIEW SPOOFER
+--==================================================
+
+local function spoofHotbar(name)
+    if not Hotbar then return end
+
+    local slot = Hotbar:FindFirstChildWhichIsA("Frame", true)
+    if not slot then return end
+
+    local label = deepFind(slot, "ItemName")
+    if label then label.Text = name end
+end
+
+--==================================================
+-- 4️⃣ FULL FAKE INVENTORY WIPE + REPLACE
+--==================================================
+
+local function replaceInventory(items)
+    if not ItemsFrame then return end
+    clearFrames(ItemsFrame)
+
+    for _, item in ipairs(items) do
+        spawnInventoryItem(item)
+    end
+end
+
+--==================================================
+-- 5️⃣ TOGGLE MENU (RIGHT SHIFT)
+--==================================================
+
+local enabled = false
+
+local fakeItems = {
+    {name = "Chroma Darkbringer", rarity = "Godly", chroma = true, amount = 1},
+    {name = "Gingerscope", rarity = "Ancient", chroma = false, amount = 1},
+    {name = "Traveler's Gun", rarity = "Ancient", chroma = false, amount = 2},
+    {name = "Chroma Luger", rarity = "Godly", chroma = true, amount = 5},
+}
+
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.RightShift then
+        enabled = not enabled
+
+        if enabled then
+            replaceInventory(fakeItems)
+            spoofHotbar(fakeItems[1].name)
+
+            -- Optional trade visuals
+            spawnTradeItem("You", fakeItems[1])
+            spawnTradeItem("Them", fakeItems[2])
+        else
+            if ItemsFrame then
+                clearFrames(ItemsFrame)
+            end
+        end
+    end
+end)
