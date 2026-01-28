@@ -1,0 +1,218 @@
+-- =========================
+-- VALUE TABLE (CLEANED)
+-- =========================
+
+local ancientValues = {
+
+    -- ANCIENTS / HIGH VALUE
+    ["Corrupt"] = 900,
+    ["Gingerscope"] = 9300,
+    ["Traveler's Axe"] = 6200,
+    ["Traveler's Gun"] = 3600,
+    ["Harvester"] = 725,
+    ["Icepiercer"] = 625,
+    ["Celestial"] = 625,
+    ["Vampire's Axe"] = 425,
+    ["Icebreaker"] = 125,
+    ["Swirly Axe"] = 80,
+    ["Batwing"] = 65,
+    ["Elderwood Scythe"] = 65,
+    ["Hallowscythe"] = 48,
+    ["Logchopper"] = 25,
+    ["Icewing"] = 5,
+
+    -- GUNS / KNIVES
+    ["Evergun"] = 2450,
+    ["Evergreen"] = 975,
+    ["Turkey"] = 1650,
+    ["Blossom"] = 790,
+    ["Sakura"] = 780,
+    ["Vampire's Gun"] = 475,
+    ["Constellation"] = 475,
+    ["Bauble"] = 425,
+    ["Darkshot"] = 490,
+    ["Darksword"] = 465,
+    ["Bloom"] = 375,
+    ["Flora"] = 375,
+    ["Rainbow Gun"] = 225,
+    ["Rainbow"] = 220,
+    ["Candy"] = 190,
+    ["Heartblade"] = 130,
+    ["Flowerwood Gun"] = 140,
+    ["Flowerwood"] = 135,
+    ["Ocean"] = 140,
+    ["Soul"] = 140,
+    ["Spirit"] = 140,
+    ["Borealis"] = 110,
+    ["Australis"] = 105,
+    ["Sugar"] = 100,
+    ["Luger"] = 70,
+    ["Watergun"] = 70,
+    ["Iceblaster"] = 65,
+    ["Candleflame"] = 65,
+    ["Elderwood Blade"] = 65,
+    ["Makeshift"] = 65,
+    ["Darkbringer"] = 60,
+    ["Lightbringer"] = 55,
+    ["Swirly Gun"] = 60,
+    ["Swirly Blade"] = 45,
+    ["Laser"] = 32,
+    ["Hallowgun"] = 27,
+    ["Icebeam"] = 28,
+    ["Iceflake"] = 28,
+    ["Plasmabeam"] = 28,
+    ["Plasmablade"] = 28,
+    ["Amerilaser"] = 28,
+    ["Blaster"] = 25,
+    ["Nightblade"] = 25,
+    ["Old Glory"] = 25,
+    ["Shark"] = 27,
+    ["Gemstone"] = 25,
+    ["Clockwork"] = 22,
+    ["Pixel"] = 23,
+    ["Slasher"] = 23,
+    ["Heat"] = 20,
+    ["Deathshard"] = 20,
+    ["Minty"] = 20,
+    ["BattleAxe II"] = 18,
+    ["BattleAxe"] = 13,
+    ["Fang"] = 18,
+    ["Tides"] = 15,
+    ["Bioblade"] = 15,
+    ["Pumpking"] = 12,
+    ["Frostsaber"] = 15,
+    ["Flames"] = 10,
+    ["Ice Dragon"] = 10,
+    ["Handsaw"] = 10,
+    ["Eternal"] = 8,
+    ["Eternal II"] = 8,
+    ["Eternal III"] = 10,
+    ["Eternal IV"] = 10,
+    ["Boneblade"] = 7,
+    ["Ghostblade"] = 7,
+    ["Eggblade"] = 7,
+    ["Prismatic"] = 7,
+    ["Saw"] = 7,
+    ["Peppermint"] = 5,
+
+    -- SEERS
+    ["Seer"] = 3,
+    ["Blue Seer"] = 3,
+    ["Red Seer"] = 3,
+    ["Purple Seer"] = 3,
+    ["Orange Seer"] = 2,
+    ["Yellow Seer"] = 2,
+
+    -- CHROMAS
+    ["Chroma Traveler's Gun"] = 140000,
+    ["Chroma Evergun"] = 55000,
+    ["Chroma Evergreen"] = 34000,
+    ["Chroma Vampire's Gun"] = 15500,
+    ["Chroma Bauble"] = 11000,
+    ["Chroma Constellation"] = 10000,
+    ["Chroma Watergun"] = 2500,
+    ["Chroma Darkbringer"] = 110,
+    ["Chroma Lightbringer"] = 105,
+    ["Chroma Luger"] = 95,
+    ["Chroma Laser"] = 75,
+    ["Chroma Candleflame"] = 65,
+    ["Chroma Elderwood Blade"] = 65,
+    ["Chroma Swirly Gun"] = 65,
+    ["Chroma Deathshard"] = 60,
+    ["Chroma Heat"] = 65,
+    ["Chroma Shark"] = 65,
+    ["Chroma Slasher"] = 60,
+    ["Chroma Tides"] = 60,
+    ["Chroma Fang"] = 60,
+    ["Chroma Gemstone"] = 55,
+    ["Chroma Gingerblade"] = 50,
+    ["Chroma Seer"] = 55,
+    ["Chroma Boneblade"] = 40,
+    ["Chroma Saw"] = 50,
+}
+
+-- =========================
+-- VALUE FUNCTIONS
+-- =========================
+
+local function getItemValue(name, isChroma)
+    if isChroma then
+        local chromaName = "Chroma " .. name
+        return ancientValues[chromaName]
+    end
+    return ancientValues[name]
+end
+
+-- =========================
+-- TRADE GUI HANDLER (PC + PHONE)
+-- =========================
+
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
+
+local function setupTradeGUI(guiName)
+    local TG = PG:FindFirstChild(guiName)
+    if not TG then return end
+
+    local Trade = TG.Container.Trade
+    local YO, TO = Trade.YourOffer, Trade.TheirOffer
+    local YOC, TOC = YO.Container, TO.Container
+    local YOT, TOT = YO.Title, TO.Title
+
+    local function updateValues()
+        local yourTotal, theirTotal = 0, 0
+
+        local function scan(container)
+            local total = 0
+            for i = 1, 4 do
+                local slot = container:FindFirstChild("NewItem" .. i)
+                if slot and slot.Visible then
+                    local name = slot.ItemName.Label.Text
+                    if name ~= "" then
+                        local amount = 1
+                        local amtText = slot.Container.Amount.Text
+                        if amtText:sub(1,1) == "x" then
+                            amount = tonumber(amtText:sub(2)) or 1
+                        end
+                        local isChroma = slot.Tags.Chroma.Visible
+                        local value = getItemValue(name, isChroma)
+                        if value then
+                            total += value * amount
+                        end
+                    end
+                end
+            end
+            return total
+        end
+
+        yourTotal = scan(YOC)
+        theirTotal = scan(TOC)
+
+        YOT.Text = "Value: " .. yourTotal
+        TOT.Text = "Value: " .. theirTotal
+
+        if theirTotal > 0 then
+            YOT.Text ..= " (Profit: " .. (theirTotal - yourTotal) .. ")"
+        end
+    end
+
+    for i = 1, 4 do
+        for _, cont in ipairs({YOC, TOC}) do
+            local slot = cont:WaitForChild("NewItem" .. i)
+            slot:GetPropertyChangedSignal("Visible"):Connect(updateValues)
+            slot.ItemName.Label:GetPropertyChangedSignal("Text"):Connect(updateValues)
+            slot.Container.Amount:GetPropertyChangedSignal("Text"):Connect(updateValues)
+            slot.Tags.Chroma:GetPropertyChangedSignal("Visible"):Connect(updateValues)
+        end
+    end
+
+    updateValues()
+end
+
+-- =========================
+-- INIT BOTH GUIs
+-- =========================
+
+setupTradeGUI("TradeGUI")
+setupTradeGUI("TradeGUI_Phone")
